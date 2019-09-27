@@ -1,0 +1,80 @@
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+
+repositories {
+    mavenCentral()
+}
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+wrapper {
+    gradleVersion = '5.5'
+}
+
+configurations {
+    agent
+}
+
+ext {
+    aspectjVersion="1.8.6"
+    allureVersion="1.4.17"
+}
+
+dependencies {
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.0.0-alpha-2'
+    implementation 'org.testng:testng:7.0.0-beta7'
+    compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+    compile group: 'com.codeborne', name: 'selenide', version: '5.2.8'
+    compile group: 'ru.yandex.qatools.allure', name: 'allure-report-data', version: '1.5.4'
+    compile group: 'io.qameta.allure', name: 'allure-testng', version: '2.12.1'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '2.0.0-alpha0'
+    testCompile group: 'com.jayway.restassured', name: 'rest-assured', version: '2.9.0'
+    compile "ru.yandex.qatools.allure:allure-report-data:${allureVersion}"
+    compile "ru.yandex.qatools.allure:allure-testng-adaptor:${allureVersion}"
+    agent   "org.aspectj:aspectjweaver:${aspectjVersion}"
+    compile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.9'
+    testCompile 'io.rest-assured:json-schema-validator:4.0.0'
+    compile 'io.rest-assured:json-path:4.0.0'
+    implementation "javax.xml.bind:jaxb-api:2.2.11"
+    implementation "com.sun.xml.bind:jaxb-core:2.2.11"
+    implementation "com.sun.xml.bind:jaxb-impl:2.2.11"
+    implementation "javax.activation:activation:1.1.1"
+}
+
+test.doFirst {
+    jvmArgs "-javaagent:${configurations.agent.singleFile}"
+}
+
+
+test {
+    useTestNG(){
+        useDefaultListeners = true
+        suites 'testng.xml'
+        dependsOn 'cleanTest'
+    }
+}
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "io.qameta.allure:allure-gradle:2.8.1"
+    }
+}
+
+apply plugin: "io.qameta.allure"
+
+allure {
+    version = '2.12.1'
+    autoconfigure = true
+    aspectjweaver = true
+    allureJavaVersion = '1.3.9'
+}
+
